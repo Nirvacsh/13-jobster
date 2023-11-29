@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { FormRow, Logo } from '../components'
+import { useState, useEffect } from 'react'
+import { Logo, FormRow } from '../components'
 import Wrapper from '../assets/wrappers/RegisterPage'
 import { toast } from 'react-toastify'
 import { useDispatch, useSelector } from 'react-redux'
@@ -12,12 +12,19 @@ const initialState = {
   password: '',
   isMember: true,
 }
-const Register = () => {
+
+function Register() {
   const [values, setValues] = useState(initialState)
   const { user, isLoading } = useSelector((store) => store.user)
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
+  const handleChange = (e) => {
+    const name = e.target.name
+    const value = e.target.value
+
+    setValues({ ...values, [name]: value })
+  }
   const onSubmit = (e) => {
     e.preventDefault()
     const { name, email, password, isMember } = values
@@ -25,18 +32,11 @@ const Register = () => {
       toast.error('Please fill out all fields')
       return
     }
-
     if (isMember) {
-      dispatch(loginUser({ email, password }))
+      dispatch(loginUser({ email: email, password: password }))
       return
     }
     dispatch(registerUser({ name, email, password }))
-  }
-
-  const handleChange = (e) => {
-    const name = e.target.name
-    const value = e.target.value
-    setValues({ ...values, [name]: value })
   }
 
   const toggleMember = () => {
@@ -44,14 +44,16 @@ const Register = () => {
   }
 
   useEffect(() => {
-    navigate('/')
-  }, [user, navigate])
-
+    if (user) {
+      navigate('/')
+    }
+  }, [user])
   return (
     <Wrapper className='full-page'>
       <form className='form' onSubmit={onSubmit}>
-        <Logo></Logo>
+        <Logo />
         <h3>{values.isMember ? 'Login' : 'Register'}</h3>
+        {/* name field */}
         {!values.isMember && (
           <FormRow
             type='text'
@@ -60,13 +62,14 @@ const Register = () => {
             handleChange={handleChange}
           />
         )}
-
+        {/* email field */}
         <FormRow
           type='email'
           name='email'
           value={values.email}
           handleChange={handleChange}
         />
+        {/* password field */}
         <FormRow
           type='password'
           name='password'
@@ -74,7 +77,19 @@ const Register = () => {
           handleChange={handleChange}
         />
         <button type='submit' className='btn btn-block' disabled={isLoading}>
-          {isLoading ? 'Loading ...' : 'Submit'}
+          {isLoading ? 'loading...' : 'submit'}
+        </button>
+        <button
+          type='button'
+          className='btn btn-block btn-hipster'
+          disabled={isLoading}
+          onClick={() =>
+            dispatch(
+              loginUser({ email: 'testUser@test.com', password: 'secret' })
+            )
+          }
+        >
+          {isLoading ? 'loading...' : 'demo app'}
         </button>
         <p>
           {values.isMember ? 'Not a member yet?' : 'Already a member?'}
