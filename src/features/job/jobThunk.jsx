@@ -31,7 +31,7 @@ export const deleteJobThunk = async (jobId, thunkAPI) => {
     })
 
     thunkAPI.dispatch(getAllJobs())
-    return resp.data
+    return resp.data.msg
   } catch (error) {
     thunkAPI.dispatch(hideLoading())
     return thunkAPI.rejectWithValue(error.response.data.msg)

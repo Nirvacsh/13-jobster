@@ -58,6 +58,12 @@ const jobSlice = createSlice({
         state.isLoading = false
         toast.error(payload)
       })
+      .addCase(deleteJob.fulfilled, (state, { payload }) => {
+        toast.success(payload)
+      })
+      .addCase(deleteJob.rejected, (state, { payload }) => {
+        toast.error(payload)
+      })
   },
 })
 
