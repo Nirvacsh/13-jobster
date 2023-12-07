@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import { createJobThunk } from './jobThunk'
+import { createJobThunk, editJobThunk } from './jobThunk'
 import { toast } from 'react-toastify'
 import { getUserFromLocalStorage } from '../../utils/localStorage'
 import { deleteJobThunk } from './jobThunk'
@@ -31,6 +31,13 @@ export const deleteJob = createAsyncThunk(
   }
 )
 
+export const editJob = createAsyncThunk(
+  'job/editJob',
+  async ({ jobId, job }, thunkAPI) => {
+    return editJobThunk({ jobId, job }, thunkAPI)
+  }
+)
+
 const jobSlice = createSlice({
   name: 'job',
   initialState,
@@ -43,6 +50,9 @@ const jobSlice = createSlice({
         ...initialState,
         jobLocation: getUserFromLocalStorage()?.location || '',
       }
+    },
+    setEditJob: (state, { payload }) => {
+      return { ...state, isEditing: true, ...payload }
     },
   },
   extraReducers: (builder) => {
@@ -64,8 +74,19 @@ const jobSlice = createSlice({
       .addCase(deleteJob.rejected, (state, { payload }) => {
         toast.error(payload)
       })
+      .addCase(editJob.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(editJob.fulfilled, (state, { payload }) => {
+        state.isLoading = false
+        toast.success('Job Modified...')
+      })
+      .addCase(editJob.rejected, (state, { payload }) => {
+        state.isLoading = false
+        toast.error(payload)
+      })
   },
 })
 
-export const { handleChange, clearValues } = jobSlice.actions
+export const { handleChange, clearValues, setEditJob } = jobSlice.actions
 export default jobSlice.reducer
